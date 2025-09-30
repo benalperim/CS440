@@ -35,7 +35,7 @@ class Problem(object):
 
 class Node(object):
     def __init__(self, state):
-        ''' Feel free to add any additional arguments you need'''
+        ''' Feel free to add any additional arguments you neeed'''
         self.state = state
         # You should add whatever fields you need here for your search
     def get_plan(self):
