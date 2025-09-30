@@ -1,0 +1,82 @@
+					Homework Part 1 Tower of Hanoi
+Tower of Hanoi with 4 disks (three pegs: A, B, C). It has easily >= 20 states, and the shortest solution from the standard start to the standard goal takes 15 moves >=  6.
+1. States
+A state shows where each disk is, with the size order on each peg (smallest to largest).
+•	Representation: three stacks (A, B, C). Each stack lists disks from bottom -> top. Disks are numbered by size: 1 = smallest, 4 = largest.
+Example state: A: [4,3], B:[2], C:[1].
+
+2. Initial State
+All disks on peg A, largest at the bottom, smallest on top:
+A:[4,3,2,1], B:[], C:[]
+3. Goal State
+All disks on peg C, largest at the bottom, smallest on top:
+A:[], B:[], C:[4,3,2,1]
+
+4. Actions
+An action could be Move(peg_from,  peg_to), moving exactly one disk: 
+the top disk from peg_from to the top of peg_to.
+•	Available moves are among {A <->B, A<->C, B<->C} in both directions.
+•	You may not place a larger disk on top of a smaller disk, and peg_from must be non-empty.
+5. Transition Model (base of algorithm?)
+Given a state S and an action Move( peg_from -> peg_to ):
+1.	If peg_from is empty, the action can’t be perfomed/illegal
+2.	Let d be the top disk on peg_from. If peg_to is empty or its top disk is larger than d, the next state S is obtained by popping d from peg_from and pushing d onto peg_to.
+3.	Otherwise, the actions can’t be performed/illegal
+6. Action Cost
+Each legal move has unit cost = 1 (uniform step cost).
+With 4 disks, the optimal solution cost from the Initial to the Goal state is 15
+
+Q2)
+
+We have 4 disks on pegs A, B,C and goal as “all disks on C.” we can define h(s) as the optimal number of moves to put the three smallest disks {1,2,3} onto peg C from their current positions, ignoring disk 4 
+(We can allow resting on top of disk 4 wherever it is, but we enforce the rule among the other 3 disks as shown in transition model step 2). Basically the 3 disk follows the standard tower of Hanoi rule of smaller disk must be placed on top of larger disk. This smaller problem is exactly 3-disk Tower of Hanoi so h(s) exists {0~7} and can be computed
+(Solution to 3 disk tower Hanoi is 7 steps optimally)
+•	Example: From the usual start  A:[4,3,2,1], the three smallest are all on A; the optimal 3-disk cost to move to C is 7, so h(start)=7 h(start)=7.
+•	Solving the full 4-disk problem must at least perform the moves required to arrange the three smallest disks onto C Therefore true remaining cost  >= h(s)
+
+•	Costs: unit cost per legal move.
+•	Initial: A:[4,3,2,1] B:[] C:[].
+•	Goal: A:[] B:[] C:[4,3,2,1].
+
+Uniform-Cost Search (UCS) — first 20 expansions
+1. g=0  act=-     A:[4, 3, 2, 1] B:[] C:[]
+ 2. g=1  act=A->B  A:[4, 3, 2] B:[1] C:[]
+ 3. g=1  act=A->C  A:[4, 3, 2] B:[] C:[1]
+ 4. g=2  act=A->C  A:[4, 3] B:[1] C:[2]
+ 5. g=2  act=B->A  A:[4, 3, 2, 1] B:[] C:[]
+ 6. g=2  act=B->C  A:[4, 3, 2] B:[] C:[1]
+ 7. g=2  act=A->B  A:[4, 3] B:[2] C:[1]
+ 8. g=2  act=C->A  A:[4, 3, 2, 1] B:[] C:[]
+ 9. g=2  act=C->B  A:[4, 3, 2] B:[1] C:[]
+10. g=3  act=B->A  A:[4, 3, 1] B:[] C:[2]
+11. g=3  act=B->C  A:[4, 3] B:[] C:[2, 1]
+12. g=3  act=C->A  A:[4, 3, 2] B:[1] C:[]
+13. g=3  act=A->B  A:[4, 3, 2] B:[1] C:[]
+14. g=3  act=A->C  A:[4, 3, 2] B:[] C:[1]
+15. g=3  act=A->B  A:[4, 3] B:[2] C:[1]
+16. g=3  act=C->A  A:[4, 3, 2, 1] B:[] C:[]
+17. g=3  act=C->B  A:[4, 3, 2] B:[1] C:[]
+18. g=3  act=B->A  A:[4, 3, 2] B:[] C:[1]
+19. g=3  act=C->A  A:[4, 3, 1] B:[2] C:[]
+20. g=3  act=C->B  A:[4, 3] B:[2, 1] C:[]
+ (lots of repeats). It won’t reach the 15-move goal within 20 expansions.
+Optimal A* solution path (15 moves)
+Each line shows Depth = g, then state, then the action that takes you to the next state, 
+0:  A:[4,3,2,1]  B:[]        C:[]               --(A→B)->  g=1, h=7, f=8
+1:  A:[4,3,2]    B:[1]       C:[]               --(A→C)->  g=2, h=7, f=9
+2:  A:[4,3]      B:[1]       C:[2]              --(B→C)->  g=3, h=7, f=10
+3:  A:[4,3]      B:[]        C:[2,1]            --(A→B)->  g=4, h=7, f=11
+4:  A:[4]        B:[3]       C:[2,1]            --(C→A)->  g=5, h=6, f=11
+5:  A:[4,1]      B:[3]       C:[2]              --(C→B)->  g=6, h=5, f=11
+6:  A:[4,1]      B:[3,2]     C:[]               --(A→B)->  g=7, h=4, f=11
+7:  A:[4]        B:[3,2,1]   C:[]               --(A→C)->  g=8, h=4, f=12
+8:  A:[]         B:[3,2,1]   C:[4]              --(B→C)->  g=9, h=3, f=12
+9:  A:[]         B:[3,2]     C:[4,1]            --(B→A)->  g=10, h=4, f=14
+10: A:[2]        B:[3]       C:[4,1]            --(C→A)->  g=11, h=3, f=14
+11: A:[2,1]      B:[3]       C:[4]              --(B→C)->  g=12, h=2, f=14
+12: A:[2,1]      B:[]        C:[4,3]            --(A→B)->  g=13, h=2, f=15
+13: A:[2]        B:[1]       C:[4,3]            --(A→C)->  g=14, h=1, f=15
+14: A:[]         B:[1]       C:[4,3,2]          --(B→C)->  g=15, h=0, f=15
+15: A:[]         B:[]        C:[4,3,2,1]        (GOAL)
+This is the exact optimal sequence A* finds (15 moves). 
+
